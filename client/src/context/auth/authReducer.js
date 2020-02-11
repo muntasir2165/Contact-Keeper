@@ -1,45 +1,36 @@
 import {
-  ADD_CONTACT,
-  DELETE_CONTACT,
-  SET_CURRENT,
-  CLEAR_CURRENT,
-  UPDATE_CONTACT,
-  FILTER_CONTACTS,
-  CLEAR_FILTER
+  REGISTER_SUCCESS,
+  REGISTER_FAIL,
+  USER_LOADED,
+  AUTH_ERROR,
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  LOGOUT,
+  CLEAR_ERRORS
 } from '../types';
 
 export default (state, action) => {
   switch (action.type) {
-    case ADD_CONTACT:
-      return { ...state, contacts: [...state.contacts, action.payload] };
-    case UPDATE_CONTACT:
+    case REGISTER_SUCCESS:
+      localStorage.setItem('token', action.payload.token);
       return {
         ...state,
-        contacts: state.contacts.map(contact =>
-          contact.id === action.payload.id ? action.payload : contact
-        )
+        ...action.payload,
+        isAuthenticated: true,
+        loading: false
       };
-    case DELETE_CONTACT:
+    case REGISTER_FAIL:
+      localStorage.removeItem('token');
       return {
         ...state,
-        contacts: state.contacts.filter(
-          contact => contact.id !== action.payload
-        )
+        token: null,
+        isAuthenticated: false,
+        loading: false,
+        user: null,
+        error: action.payload
       };
-    case SET_CURRENT:
-      return { ...state, current: action.payload };
-    case CLEAR_CURRENT:
-      return { ...state, current: null };
-    case FILTER_CONTACTS:
-      return {
-        ...state,
-        filtered: state.contacts.filter(contact => {
-          const regex = new RegExp(`${action.payload}`, 'gi');
-          return contact.name.match(regex) || contact.email.match(regex);
-        })
-      };
-    case CLEAR_FILTER:
-      return { ...state, filtered: null };
+    case CLEAR_ERRORS:
+      return { ...state, error: null };
     default:
       return state;
   }
